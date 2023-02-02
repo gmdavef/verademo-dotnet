@@ -43,3 +43,16 @@ steps:
     PathtoPublish: 'results.json'
     ArtifactName: 'Build'
     publishLocation: 'Container'
+
+- task: PowerShell@2
+  displayName: 'Veracode SCA scan'
+  #env: {SRCCLR_API_TOKEN: $(scaToken), SRCCLR_USE_DOTNET_EXEC: 'DOTNET', JDK_JAVA_OPTIONS: '-Djdk.tls.client.protocols=TLSv1.2 -Dhttps.protocols=TLS1.2 -Djavax.net.debug=ssl,handshake'}
+  env: {SRCCLR_API_TOKEN: $(scaToken), SRCCLR_USE_DOTNET_EXEC: 'DOTNET'}
+  inputs:
+   targetType: 'inline'
+   script: |
+    Set-ExecutionPolicy AllSigned -Scope Process -Force
+    $ProgressPreference = "SilentlyContinue"
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    iex ((New-Object System.Net.WebClient).DownloadString('https://download.sourceclear.com/ci.ps1'))
+    srcclr scan $(Build.SourcesDirectory)
