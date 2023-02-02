@@ -29,20 +29,20 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: CmdLine@2
-  displayName: Veracode Static Pipeline Scanner
-  inputs:
-    script: |
-      curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-      unzip -o pipeline-scan-LATEST.zip
-      java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(build.artifactstagingdirectory)\Verademo-dotnet.zip || true
+#- task: CmdLine@2
+#  displayName: Veracode Static Pipeline Scanner
+#  inputs:
+#    script: |
+#      curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+#      unzip -o pipeline-scan-LATEST.zip
+#      java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(build.artifactstagingdirectory)\Verademo-dotnet.zip || true
 
-- task: PublishBuildArtifacts@1
-  displayName: Create Build Artifact for Veracode Static Pipeline Scanner Results
-  inputs:
-    PathtoPublish: 'results.json'
-    ArtifactName: 'Build'
-    publishLocation: 'Container'
+#- task: PublishBuildArtifacts@1
+#  displayName: Create Build Artifact for Veracode Static Pipeline Scanner Results
+#  inputs:
+#    PathtoPublish: 'results.json'
+#    ArtifactName: 'Build'
+#    publishLocation: 'Container'
 
 - task: PowerShell@2
   displayName: 'Veracode SCA scan'
@@ -55,4 +55,6 @@ steps:
     $ProgressPreference = "SilentlyContinue"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     iex ((New-Object System.Net.WebClient).DownloadString('https://download.sourceclear.com/ci.ps1'))
+    Get-Location
+    Write-Output $(Build.SourcesDirectory)
     srcclr scan --allow-dirty $(Build.SourcesDirectory)
